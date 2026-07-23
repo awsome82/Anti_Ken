@@ -1,0 +1,209 @@
+{
+  "course": "montvert",
+  "courseName": "Montvert CC (몽베르 CC)",
+  "scrapedAt": "2026-06-26T14:30:00.000Z",
+  "scrapedDate": "2026-06-26",
+  "totalDatesScraped": 30,
+  "dates": {
+    "20260628": {
+      "dayOfWeek": "Sunday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "06:37", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:37", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:00", "holes": 18, "fee": 155000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:00", "holes": 18, "fee": 155000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:28", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(IN)", "time": "12:28", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:35", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(IN)", "time": "12:35", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:42", "holes": 18, "fee": 140000, "event": "" },
+        { "course": "망무봉(IN)", "time": "13:10", "holes": 18, "fee": 140000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "13:10", "holes": 18, "fee": 140000, "event": "" }
+      ],
+      "stats": { "minFee": 140000, "maxFee": 160000, "avgFee": 150769, "medianFee": 150000, "count": 13 }
+    },
+    "20260629": {
+      "dayOfWeek": "Monday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 130000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 130000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:00", "holes": 18, "fee": 125000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:00", "holes": 18, "fee": 125000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "10:00", "holes": 18, "fee": 120000, "event": "" },
+        { "course": "망무봉(IN)", "time": "10:00", "holes": 18, "fee": 120000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:00", "holes": 18, "fee": 115000, "event": "" },
+        { "course": "망무봉(IN)", "time": "12:00", "holes": 18, "fee": 115000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "13:30", "holes": 18, "fee": 110000, "event": "" }
+      ],
+      "stats": { "minFee": 110000, "maxFee": 130000, "avgFee": 121111, "medianFee": 120000, "count": 9 }
+    },
+    "20260630": {
+      "dayOfWeek": "Tuesday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 132000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 132000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "08:00", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(IN)", "time": "08:00", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "11:00", "holes": 18, "fee": 122000, "event": "" },
+        { "course": "망무봉(IN)", "time": "11:00", "holes": 18, "fee": 122000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "13:00", "holes": 18, "fee": 118000, "event": "" }
+      ],
+      "stats": { "minFee": 118000, "maxFee": 132000, "avgFee": 126000, "medianFee": 128000, "count": 7 }
+    },
+    "20260701": {
+      "dayOfWeek": "Wednesday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 135000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 135000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:30", "holes": 18, "fee": 130000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:30", "holes": 18, "fee": 130000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "10:30", "holes": 18, "fee": 125000, "event": "" },
+        { "course": "망무봉(IN)", "time": "10:30", "holes": 18, "fee": 125000, "event": "" }
+      ],
+      "stats": { "minFee": 125000, "maxFee": 135000, "avgFee": 130000, "medianFee": 130000, "count": 6 }
+    },
+    "20260702": {
+      "dayOfWeek": "Thursday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "08:30", "holes": 18, "fee": 123000, "event": "" },
+        { "course": "망무봉(IN)", "time": "08:30", "holes": 18, "fee": 123000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "11:30", "holes": 18, "fee": 118000, "event": "" },
+        { "course": "망무봉(IN)", "time": "11:30", "holes": 18, "fee": 118000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "14:00", "holes": 18, "fee": 112000, "event": "" }
+      ],
+      "stats": { "minFee": 112000, "maxFee": 128000, "avgFee": 121429, "medianFee": 123000, "count": 7 }
+    },
+    "20260703": {
+      "dayOfWeek": "Friday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 142000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 142000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:00", "holes": 18, "fee": 138000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:00", "holes": 18, "fee": 138000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "09:00", "holes": 18, "fee": 135000, "event": "" },
+        { "course": "망무봉(IN)", "time": "09:00", "holes": 18, "fee": 135000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:00", "holes": 18, "fee": 130000, "event": "" }
+      ],
+      "stats": { "minFee": 130000, "maxFee": 142000, "avgFee": 137143, "medianFee": 138000, "count": 7 }
+    },
+    "20260704": {
+      "dayOfWeek": "Saturday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:00", "holes": 18, "fee": 165000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:00", "holes": 18, "fee": 165000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:00", "holes": 18, "fee": 155000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:00", "holes": 18, "fee": 155000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:00", "holes": 18, "fee": 148000, "event": "" },
+        { "course": "망무봉(IN)", "time": "12:00", "holes": 18, "fee": 148000, "event": "" }
+      ],
+      "stats": { "minFee": 148000, "maxFee": 165000, "avgFee": 157000, "medianFee": 157500, "count": 8 }
+    },
+    "20260705": {
+      "dayOfWeek": "Sunday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 162000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 162000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:00", "holes": 18, "fee": 158000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:00", "holes": 18, "fee": 158000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:00", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(IN)", "time": "12:00", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "13:30", "holes": 18, "fee": 145000, "event": "" }
+      ],
+      "stats": { "minFee": 145000, "maxFee": 162000, "avgFee": 155000, "medianFee": 158000, "count": 7 }
+    },
+    "20260706": {
+      "dayOfWeek": "Monday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "08:00", "holes": 18, "fee": 122000, "event": "" },
+        { "course": "망무봉(IN)", "time": "08:00", "holes": 18, "fee": 122000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "11:00", "holes": 18, "fee": 118000, "event": "" },
+        { "course": "망무봉(IN)", "time": "11:00", "holes": 18, "fee": 118000, "event": "" }
+      ],
+      "stats": { "minFee": 118000, "maxFee": 128000, "avgFee": 122667, "medianFee": 122000, "count": 6 }
+    },
+    "20260707": {
+      "dayOfWeek": "Tuesday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 130000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 130000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "09:00", "holes": 18, "fee": 125000, "event": "" },
+        { "course": "망무봉(IN)", "time": "09:00", "holes": 18, "fee": 125000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:30", "holes": 18, "fee": 120000, "event": "" }
+      ],
+      "stats": { "minFee": 120000, "maxFee": 130000, "avgFee": 126000, "medianFee": 125000, "count": 5 }
+    },
+    "20260708": {
+      "dayOfWeek": "Wednesday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 133000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 133000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "08:00", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(IN)", "time": "08:00", "holes": 18, "fee": 128000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "11:00", "holes": 18, "fee": 122000, "event": "" },
+        { "course": "망무봉(IN)", "time": "11:00", "holes": 18, "fee": 122000, "event": "" }
+      ],
+      "stats": { "minFee": 122000, "maxFee": 133000, "avgFee": 127667, "medianFee": 128000, "count": 6 }
+    },
+    "20260709": {
+      "dayOfWeek": "Thursday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 126000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 126000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "09:30", "holes": 18, "fee": 120000, "event": "" },
+        { "course": "망무봉(IN)", "time": "09:30", "holes": 18, "fee": 120000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "13:00", "holes": 18, "fee": 115000, "event": "" }
+      ],
+      "stats": { "minFee": 115000, "maxFee": 126000, "avgFee": 121400, "medianFee": 120000, "count": 5 }
+    },
+    "20260710": {
+      "dayOfWeek": "Friday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 145000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 145000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:30", "holes": 18, "fee": 140000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:30", "holes": 18, "fee": 140000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "10:00", "holes": 18, "fee": 135000, "event": "" },
+        { "course": "망무봉(IN)", "time": "10:00", "holes": 18, "fee": 135000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:30", "holes": 18, "fee": 132000, "event": "" }
+      ],
+      "stats": { "minFee": 132000, "maxFee": 145000, "avgFee": 138857, "medianFee": 140000, "count": 7 }
+    },
+    "20260711": {
+      "dayOfWeek": "Saturday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:00", "holes": 18, "fee": 168000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:00", "holes": 18, "fee": 168000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 162000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 162000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:00", "holes": 18, "fee": 158000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:00", "holes": 18, "fee": 158000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:00", "holes": 18, "fee": 150000, "event": "" }
+      ],
+      "stats": { "minFee": 150000, "maxFee": 168000, "avgFee": 160857, "medianFee": 162000, "count": 7 }
+    },
+    "20260712": {
+      "dayOfWeek": "Sunday",
+      "teetimes": [
+        { "course": "망무봉(OUT)", "time": "06:30", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(IN)", "time": "06:30", "holes": 18, "fee": 160000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "07:00", "holes": 18, "fee": 155000, "event": "" },
+        { "course": "망무봉(IN)", "time": "07:00", "holes": 18, "fee": 155000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:28", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(IN)", "time": "12:28", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:35", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(IN)", "time": "12:35", "holes": 18, "fee": 150000, "event": "" },
+        { "course": "망무봉(OUT)", "time": "12:42", "holes": 18, "fee": 140000, "event": "" },
+        { "course": "망무봉(IN)", "time": "13:10", "holes": 18, "fee": 140000, "event": "" }
+      ],
+      "stats": { "minFee": 140000, "maxFee": 160000, "avgFee": 151000, "medianFee": 150000, "count": 10 }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "golf-fee-scraper",
+  "version": "1.0.0",
+  "description": "Daily green fee scraper for golf courses",
+  "main": "index.js",
+  "scripts": {
+    "scrape": "NODE_TLS_REJECT_UNAUTHORIZED=0 node index.js",
+    "test": "echo test"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0"
+  }
+}

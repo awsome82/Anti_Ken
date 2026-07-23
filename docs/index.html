@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golf Green Fee Tracker — Montvert CC</title>
+  <meta name="description" content="Track daily green fee trends for Montvert Country Club. Compare prices, spot deals, and find the cheapest tee times." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Background Gradient Orbs -->
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
+  <!-- Header -->
+  <header id="app-header">
+    <div class="header-content">
+      <div class="logo-group">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="12" r="5" fill="url(#grad1)" />
+            <path d="M20 17 L20 32" stroke="url(#grad1)" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M14 35 C14 32 20 30 20 32 C20 30 26 32 26 35" stroke="url(#grad1)" stroke-width="2" fill="none" stroke-linecap="round" />
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#34d399" />
+                <stop offset="100%" style="stop-color:#06b6d4" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1>Green Fee Tracker</h1>
+          <p class="subtitle">Montvert Country Club</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="last-update" id="last-update">
+          <span class="pulse-dot"></span>
+          <span>Loading...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="app-main">
+
+    <!-- Stats Overview Cards -->
+    <section class="stats-grid" id="stats-grid">
+      <div class="stat-card" id="stat-today-avg">
+        <div class="stat-label">Today's Avg Fee</div>
+        <div class="stat-value" id="stat-today-avg-value">—</div>
+        <div class="stat-sub" id="stat-today-avg-sub">Loading...</div>
+      </div>
+      <div class="stat-card" id="stat-cheapest">
+        <div class="stat-label">Cheapest Available</div>
+        <div class="stat-value" id="stat-cheapest-value">—</div>
+        <div class="stat-sub" id="stat-cheapest-sub">Loading...</div>
+      </div>
+      <div class="stat-card" id="stat-weekly-avg">
+        <div class="stat-label">7-Day Average</div>
+        <div class="stat-value" id="stat-weekly-avg-value">—</div>
+        <div class="stat-sub" id="stat-weekly-avg-sub">Loading...</div>
+      </div>
+      <div class="stat-card" id="stat-monthly-avg">
+        <div class="stat-label">30-Day Average</div>
+        <div class="stat-value" id="stat-monthly-avg-value">—</div>
+        <div class="stat-sub" id="stat-monthly-avg-sub">Loading...</div>
+      </div>
+    </section>
+
+    <!-- Date Picker & Analysis -->
+    <section class="analysis-section">
+      <div class="card glass-card" id="date-analysis-card">
+        <div class="card-header">
+          <h2>📊 Date Analysis</h2>
+          <p>Pick a date to see how its green fee compares</p>
+        </div>
+        <div class="date-picker-row">
+          <label for="analysis-date">Select Date</label>
+          <input type="date" id="analysis-date" />
+        </div>
+        <div class="comparison-grid" id="comparison-grid">
+          <div class="comparison-item" id="cmp-selected">
+            <span class="cmp-label">Selected Date Avg</span>
+            <span class="cmp-value" id="cmp-selected-value">—</span>
+          </div>
+          <div class="comparison-item" id="cmp-prev-day">
+            <span class="cmp-label">vs. Day Before</span>
+            <span class="cmp-value" id="cmp-prev-day-value">—</span>
+            <span class="cmp-badge" id="cmp-prev-day-badge"></span>
+          </div>
+          <div class="comparison-item" id="cmp-week-ago">
+            <span class="cmp-label">vs. Week Ago</span>
+            <span class="cmp-value" id="cmp-week-ago-value">—</span>
+            <span class="cmp-badge" id="cmp-week-ago-badge"></span>
+          </div>
+          <div class="comparison-item" id="cmp-month-ago">
+            <span class="cmp-label">vs. Month Ago</span>
+            <span class="cmp-value" id="cmp-month-ago-value">—</span>
+            <span class="cmp-badge" id="cmp-month-ago-badge"></span>
+          </div>
+          <div class="comparison-item" id="cmp-weekly-avg">
+            <span class="cmp-label">vs. 7-Day Avg</span>
+            <span class="cmp-value" id="cmp-weekly-avg-value">—</span>
+            <span class="cmp-badge" id="cmp-weekly-avg-badge"></span>
+          </div>
+          <div class="comparison-item" id="cmp-monthly-avg">
+            <span class="cmp-label">vs. 30-Day Avg</span>
+            <span class="cmp-value" id="cmp-monthly-avg-value">—</span>
+            <span class="cmp-badge" id="cmp-monthly-avg-badge"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="charts-section">
+      <div class="card glass-card chart-card" id="trend-chart-card">
+        <div class="card-header">
+          <h2>📈 Price Trend</h2>
+          <p>Min / Avg / Max green fee over time</p>
+        </div>
+        <div class="chart-container">
+          <canvas id="trend-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="card glass-card chart-card" id="dow-chart-card">
+        <div class="card-header">
+          <h2>📅 Day of Week Comparison</h2>
+          <p>Average green fee by day of week</p>
+        </div>
+        <div class="chart-container">
+          <canvas id="dow-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tee Time Detail Table -->
+    <section class="detail-section">
+      <div class="card glass-card" id="teetimes-card">
+        <div class="card-header">
+          <h2>⛳ Tee Times</h2>
+          <p>Available slots for selected date</p>
+        </div>
+        <div class="table-wrapper">
+          <table id="teetimes-table">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Time</th>
+                <th>Holes</th>
+                <th>Green Fee</th>
+                <th>Event</th>
+              </tr>
+            </thead>
+            <tbody id="teetimes-tbody">
+              <tr>
+                <td colspan="5" class="empty-state">Select a date to view tee times</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer id="app-footer">
+    <p>Golf Green Fee Tracker &middot; Data scraped daily from <a href="https://www.montvertcc.com" target="_blank" rel="noopener">Montvert CC</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

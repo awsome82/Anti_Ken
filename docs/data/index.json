@@ -1,0 +1,16 @@
+{
+  "courses": [
+    {
+      "id": "montvert",
+      "name": "Montvert CC (몽베르 CC)",
+      "url": "https://www.montvertcc.com",
+      "type": "public"
+    }
+  ],
+  "lastUpdated": "2026-07-23T11:55:21.110Z",
+  "snapshots": [
+    "2026-06-26",
+    "2026-06-28",
+    "2026-07-23"
+  ]
+}
