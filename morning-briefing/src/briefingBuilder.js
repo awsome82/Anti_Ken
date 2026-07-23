@@ -81,6 +81,10 @@ function buildBriefing(marketData, newsItems) {
       const cleanT = escapeHtml(item.titleKo || item.title);
       const cleanS = escapeHtml(item.source);
       msg += `${index + 1}. <a href="${item.link}"><b>${cleanT}</b></a>\n`;
+      if (item.snippetKo) {
+        const cleanSnip = escapeHtml(item.snippetKo);
+        msg += `   📝 <i>요약: ${cleanSnip}</i>\n`;
+      }
       msg += `   ↳ <i>출처: ${cleanS}</i>\n\n`;
     });
   }
