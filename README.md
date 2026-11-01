@@ -1,135 +1,132 @@
-# 🌅 Morning Briefing Telegram Bot & Market Tracker
+# Anti_Ken
 
-An automated Node.js system that collects overnight US major news headlines and key US stock market index/ticker movements, formats a rich morning briefing, and sends it via Telegram Bot API daily at 7:00 AM KST.
+Personal automation repo with two independent Node.js projects, both run daily by GitHub Actions:
 
-## 🚀 Quick Start (Morning Briefing)
+| Project | What it does | Schedule (KST) | Workflow |
+|---|---|---|---|
+| [🌅 Morning Briefing](#-morning-briefing-telegram-bot) | Sends overnight US news + stock moves to Telegram | 07:00 daily | `morning_briefing.yml` |
+| [⛳ Green Fee Tracker](#-golf-green-fee-tracker) | Scrapes Montvert CC green fees, publishes a dashboard | 09:00 daily | `scrape.yml` |
+
+```
+├── morning-briefing/    # Telegram morning briefing bot
+├── scraper/             # Golf green fee scraper
+├── data/                # Daily green fee snapshots (source of truth)
+├── docs/                # GitHub Pages dashboard (+ docs/data mirror of data/)
+└── .github/workflows/   # morning_briefing.yml, scrape.yml
+```
+
+---
+
+## 🌅 Morning Briefing Telegram Bot
+
+Collects overnight US headlines and key index/stock movements, formats a briefing, and sends it via the Telegram Bot API.
+
+- **News** — RSS: Google News (US), Yahoo Finance, WSJ Markets, CNBC
+- **Markets** — Yahoo Finance chart API
+  - Indices: `^GSPC` (S&P 500), `^IXIC` (Nasdaq), `^DJI` (Dow)
+  - Equities: `NVDA, AAPL, MSFT, TSLA, GOOGL, AMZN, NTAP`
+
+### Run locally
 
 ```bash
 cd morning-briefing
+cp .env.example .env   # fill in Telegram values (optional)
 npm install
 bash run.sh
 ```
 
-> **Note**: If `TELEGRAM_BOT_TOKEN` or `TELEGRAM_CHAT_ID` are not set in `morning-briefing/.env`, the script runs in **Console Preview Mode**, displaying the formatted briefing directly in your terminal.
+If `TELEGRAM_BOT_TOKEN` or `TELEGRAM_CHAT_ID` is missing, it runs in **console preview mode** and prints the briefing instead of sending it.
+
+### Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `TELEGRAM_BOT_TOKEN` | — | Bot token from [@BotFather](https://t.me/botfather) (`/newbot`) |
+| `TELEGRAM_CHAT_ID` | — | Your chat ID ([@userinfobot](https://t.me/userinfobot)) or a channel like `@my_channel` |
+| `INDICES` | `^GSPC,^IXIC,^DJI` | Comma-separated index symbols |
+| `EQUITIES` | `NVDA,AAPL,MSFT,TSLA,GOOGL,AMZN,NTAP` | Comma-separated stock tickers |
+| `TIMEZONE` | `Asia/Seoul` | Timezone for date headers |
+
+> In GitHub Actions, `INDICES` / `EQUITIES` / `TIMEZONE` are set in `.github/workflows/morning_briefing.yml` and override the defaults — edit the ticker list there.
+
+### GitHub Actions
+
+Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` under **Settings → Secrets and variables → Actions**. Runs at 22:00 UTC (07:00 KST); trigger manually via **Actions → Morning Briefing Telegram Bot → Run workflow**.
 
 ---
 
-### 📲 Setting Up Telegram Delivery
+## ⛳ Golf Green Fee Tracker
 
-1. **Create a Telegram Bot**:
-   - Message [@BotFather](https://t.me/botfather) on Telegram.
-   - Run `/newbot`, choose a name and username.
-   - Copy the HTTP API **Token**.
+Logs into Montvert CC (몽베르 CC), collects available tee times and green fees for the current and next month, saves a daily JSON snapshot, and renders trends on a GitHub Pages dashboard.
 
-2. **Get your Chat ID**:
-   - Message [@userinfobot](https://t.me/userinfobot) to get your personal `CHAT_ID`, or use your Telegram Channel username (e.g., `@my_channel`).
+### Features
 
-3. **Configure Environment**:
-   - Edit `morning-briefing/.env`:
-     ```env
-     TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyZ
-     TELEGRAM_CHAT_ID=123456789
-     ```
+- **Daily price monitoring** — automated scraping via GitHub Actions
+- **Trend analysis** — min / avg / max green fee over time
+- **Day-of-week comparison** — weekday vs. weekend pricing
+- **Date analysis** — compare any date against the previous day, same day last week, same day last month, and 7- / 30-day rolling averages
+- **Tee time details** — browse all available slots with pricing
 
-4. **GitHub Actions Automation**:
-   - Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` to **GitHub Repo → Settings → Secrets and variables → Actions**.
-   - The briefing will automatically deliver every morning at **7:00 AM KST** (22:00 UTC).
-
----
-
-# ⛳ Golf Green Fee Tracker
-
-Track daily green fee trends for golf courses. See how prices change over time, compare weekday vs. weekend rates, and find the cheapest tee times.
-
-## 🏗️ Architecture
-
-```
-├── morning-briefing/ # US Major News & Stock Market Morning Briefing Telegram Bot
-├── scraper/          # Node.js Golf Green Fee scraper
-├── data/             # Raw JSON snapshots (one file per scrape day)
-├── docs/             # Dashboard (GitHub Pages SPA)
-└── .github/workflows # CI/CD automation workflows
-```
-
-## 🚀 Quick Start (Golf Scraper)
+### Run locally
 
 ```bash
 cd scraper
 npm install
-bash run.sh
+MONTVERT_USER_ID=... MONTVERT_PASSWORD=... npm run scrape
 ```
 
+Credentials can also go in `scraper/.env`. Without credentials the scraper runs in **mock mode** and writes sample data (disabled in CI).
 
-### 3. Preview the dashboard
+The scraper writes `data/montvert/YYYY-MM-DD.json`, updates `data/index.json`, and mirrors both into `docs/data/`.
+
+### Preview the dashboard
 
 ```bash
-# Copy data to docs folder
-mkdir -p docs/data/montvert
-cp data/index.json docs/data/index.json
-cp data/montvert/*.json docs/data/montvert/
-
-# Start local server
 cd docs
 python3 -m http.server 8080
-# Open http://localhost:8080
+# open http://localhost:8080
 ```
 
-## 🔐 GitHub Setup
+### Data safety
 
-### Secrets (required for automated scraping)
+- If a run collects **zero tee times** (login failure, expired session, site change), the scraper **exits with an error and saves nothing**, so empty snapshots are never committed and the failed workflow run is visible in the Actions tab.
+- In CI, missing credentials are an error rather than falling back to mock data.
 
-Go to **Settings → Secrets → Actions** and add:
+### GitHub setup
+
+**Secrets** (Settings → Secrets and variables → Actions):
 
 | Secret | Description |
 |---|---|
 | `MONTVERT_USER_ID` | Montvert CC web member ID |
 | `MONTVERT_PASSWORD` | Montvert CC password |
 
-### GitHub Pages
+**GitHub Pages** (Settings → Pages): Source **Deploy from a branch**, branch **main**, folder **/docs**.
 
-1. Go to **Settings → Pages**
-2. Source: **Deploy from a branch**
-3. Branch: **main**, folder: **/docs**
-4. Save
+Runs at 00:00 UTC (09:00 KST) and auto-commits new data as `data: daily green fee snapshot [skip ci]`. Manual run: **Actions → Scrape Green Fees → Run workflow**.
 
-### Manual trigger
-
-Go to **Actions → Scrape Green Fees → Run workflow**
-
-## 📊 Features
-
-- **Daily price monitoring** — automated scraping via GitHub Actions cron
-- **Trend analysis** — min/avg/max green fee over time
-- **Day-of-week comparison** — weekday vs. weekend pricing
-- **Date analysis** — compare any date against:
-  - Previous day
-  - Same day last week
-  - Same day last month
-  - 7-day rolling average
-  - 30-day rolling average
-- **Tee time details** — browse all available slots with pricing
-
-## 📁 Data Format
-
-Each daily snapshot (`data/montvert/YYYY-MM-DD.json`) contains:
+### Data format
 
 ```json
 {
   "course": "montvert",
+  "courseName": "Montvert CC (몽베르 CC)",
   "scrapedAt": "2026-06-26T14:30:00.000Z",
+  "scrapedDate": "2026-06-26",
+  "totalDatesScraped": 1,
   "dates": {
     "20260628": {
       "dayOfWeek": "Sunday",
       "teetimes": [
-        { "course": "망무봉(OUT)", "time": "12:28", "holes": 18, "fee": 150000 }
+        { "course": "망무봉(OUT)", "time": "12:28", "holes": 18, "fee": 150000, "event": "" }
       ],
-      "stats": { "minFee": 140000, "maxFee": 160000, "avgFee": 150769 }
+      "stats": { "minFee": 140000, "maxFee": 160000, "avgFee": 150769, "medianFee": 150000, "count": 13 }
     }
   }
 }
 ```
 
-## 🎯 Tracked Courses
+### Tracked courses
 
 | Course | Status |
 |---|---|
