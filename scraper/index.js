@@ -401,6 +401,10 @@ async function main() {
   const hasCredentials = userId && password && userId !== 'your_user_id' && password !== 'your_password';
 
   if (!hasCredentials) {
+    // Mock data must never be committed as real data from CI.
+    if (process.env.CI) {
+      throw new Error('Missing MONTVERT_USER_ID / MONTVERT_PASSWORD in CI. Refusing to generate mock data.');
+    }
     console.log('\n[NOTICE] MONTVERT_USER_ID or MONTVERT_PASSWORD credentials are not set in scraper/.env.');
     console.log('[NOTICE] To scrape live data from Montvert CC, uncomment and set your credentials in scraper/.env.');
     console.log('[NOTICE] Running scraper in DEMO/MOCK mode to generate current snapshot data...\n');
@@ -437,7 +441,6 @@ async function main() {
 
   if (allDates.length === 0) {
     console.log('[MAIN] No available dates found. The calendar may be empty or the session expired.');
-    console.log('[MAIN] Saving empty snapshot.');
   }
 
   // Step 4: Fetch tee times for each date
@@ -476,6 +479,17 @@ async function main() {
       console.error(`[ERROR] Failed to fetch tee times for ${dateStr}:`, err.message);
     }
   }
+
+  // Guard: never persist an empty snapshot. Zero tee times across all dates
+  // almost always means login/session failure or a site change, not real data.
+  const totalSlots = Object.values(dateData).reduce((sum, d) => sum + d.teetimes.length, 0);
+  if (totalSlots === 0) {
+    throw new Error(
+      `Scrape returned no tee times (${Object.keys(dateData).length} dates checked). ` +
+      'Refusing to save an empty snapshot - check credentials or site changes.'
+    );
+  }
+  console.log(`[MAIN] Collected ${totalSlots} tee time slots across ${Object.keys(dateData).length} dates.`);
 
   // Step 5: Save snapshot
   const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
