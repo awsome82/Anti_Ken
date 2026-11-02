@@ -25,6 +25,9 @@ async function main() {
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`\n=== Completed Morning Briefing workflow in ${elapsed}s ===`);
+    // Keep-alive sockets from the HTTP clients otherwise hold the process
+    // open for minutes after the work is done (close to the job timeout).
+    process.exit(0);
   } catch (err) {
     console.error('[FATAL ERROR] Morning Briefing workflow failed:', err);
     process.exit(1);
