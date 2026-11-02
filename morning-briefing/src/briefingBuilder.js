@@ -109,7 +109,7 @@ function buildBriefing(marketData, news) {
     msg += `오늘 개장 전 최신 경제 지표와 시장 동향을 주시하세요.`;
   }
 
-  const summaryNote = news?.method === 'claude' ? ' · 뉴스 선별·요약: Claude' : ' · 뉴스: 자동 번역';
+  const summaryNote = news?.provider ? ` · 뉴스 선별·요약: ${news.provider}` : ' · 뉴스: 자동 선별·번역';
   msg += `\n\n🤖 <i>자동 모닝 브리핑 봇${summaryNote}</i>`;
 
   return msg;

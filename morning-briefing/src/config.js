@@ -16,13 +16,23 @@ const config = {
   },
   timezone: process.env.TIMEZONE || 'Asia/Seoul',
 
-  // Claude is used to pick the most significant stories per category and
-  // write Korean summaries. Without ANTHROPIC_API_KEY the bot falls back to
-  // "newest stories + machine translation".
+  // Optional, paid: Claude picks the stories and writes Korean summaries.
+  // Takes priority over GitHub Models when ANTHROPIC_API_KEY is set.
   claude: {
     apiKey: process.env.ANTHROPIC_API_KEY || '',
     model: process.env.CLAUDE_MODEL || 'claude-opus-5-5',
     effort: process.env.CLAUDE_EFFORT || 'medium',
+  },
+
+  // Free AI via GitHub Models (uses the Actions GITHUB_TOKEN with
+  // `models: read`). Models are tried in order until one works.
+  githubModels: {
+    token: process.env.GITHUB_MODELS_TOKEN || process.env.GITHUB_TOKEN || '',
+    models: (process.env.GITHUB_MODELS || 'openai/gpt-4.1-mini,openai/gpt-4o-mini')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+    maxCandidates: 20, // per category; keeps each request under the free-tier input cap
   },
 
   news: {

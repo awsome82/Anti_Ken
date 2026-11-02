@@ -1,7 +1,8 @@
 const Parser = require('rss-parser');
 const axios = require('axios');
 const config = require('./config');
-const { summarizeWithClaude } = require('./newsSummarizer');
+const { summarizeNews } = require('./newsSummarizer');
+const { isExcluded, scoreStories, pickTop, sameEventAsAny } = require('./newsRanker');
 
 const parser = new Parser({
   timeout: 8000,
@@ -51,7 +52,9 @@ async function fetchFeed(feed, categoryId) {
     const cutoff = Date.now() - config.news.maxAgeHours * 3600 * 1000;
     const out = [];
 
-    for (const item of (parsed.items || []).slice(0, config.news.perFeed)) {
+    const items = (parsed.items || []).slice(0, config.news.perFeed);
+    for (let rank = 0; rank < items.length; rank++) {
+      const item = items[rank];
       let title = cleanText(item.title);
       let source = feed.name;
       if (feed.aggregator) {
@@ -75,6 +78,7 @@ async function fetchFeed(feed, categoryId) {
         link: item.link || feed.url,
         source,
         pubDate: pubDate && !Number.isNaN(pubDate.getTime()) ? pubDate : null,
+        feedRank: feed.aggregator ? rank : null, // Google News orders by importance
       });
     }
     return out;
@@ -92,32 +96,40 @@ async function collectCandidates() {
   const seen = new Set();
   const byCategory = {};
 
-  // Fetch everything in parallel, then dedupe in category order so a story
-  // that appears in several categories stays in the first one.
+  // Fetch every feed in parallel.
   const results = await Promise.all(
     config.newsCategories.map((cat) => Promise.all(cat.feeds.map((f) => fetchFeed(f, cat.id))))
   );
 
-  config.newsCategories.forEach((cat, ci) => {
-    // Interleave feeds so no single outlet dominates the top of the list.
-    const perFeed = results[ci].map((items) =>
-      items.sort((a, b) => (b.pubDate?.getTime() || 0) - (a.pubDate?.getTime() || 0))
-    );
-    const merged = [];
-    for (let i = 0; perFeed.some((items) => i < items.length); i++) {
-      for (const items of perFeed) if (items[i]) merged.push(items[i]);
-    }
+  // Drop non-news formats, then score on the full set: identical headlines
+  // from different outlets (wire stories) are exactly the coverage signal we
+  // want, so they must be counted before deduplication.
+  let excluded = 0;
+  const kept = config.newsCategories.map((cat, ci) =>
+    results[ci].flat().filter((item) => {
+      if (isExcluded(item)) {
+        excluded++;
+        return false;
+      }
+      return true;
+    })
+  );
+  scoreStories(kept.flat());
 
-    const list = [];
-    for (const item of merged) {
+  // Dedupe exact headlines (first category wins), keep the best-scored copy,
+  // and rank within each category.
+  config.newsCategories.forEach((cat, ci) => {
+    const ranked = [];
+    for (const item of [...kept[ci]].sort((a, b) => b.score - a.score)) {
       const key = normalizeTitle(item.title);
       if (seen.has(key)) continue;
       seen.add(key);
-      list.push({ ...item, id: `${cat.id}-${list.length + 1}` });
+      ranked.push(item);
     }
-    byCategory[cat.id] = list;
-    console.log(`[NEWS] ${cat.label}: ${list.length} candidate stories`);
+    byCategory[cat.id] = ranked.map((item, i) => ({ ...item, id: `${cat.id}-${i + 1}` }));
+    console.log(`[NEWS] ${cat.label}: ${ranked.length} candidates`);
   });
+  console.log(`[NEWS] Filtered out ${excluded} non-news items (podcasts, opinion, live blogs, deals...).`);
 
   return byCategory;
 }
@@ -148,10 +160,10 @@ function trimSentence(text, max) {
 }
 
 /**
- * Fallback: newest stories per category, machine-translated.
+ * Fallback: top rule-based stories, machine-translated.
  */
-async function fallbackSelection(candidates, excludeIds = new Set(), count = config.news.perCategory) {
-  const picked = candidates.filter((c) => !excludeIds.has(c.id)).slice(0, count);
+async function fallbackSelection(candidates, alreadyPicked, count) {
+  const picked = pickTop(candidates, count, alreadyPicked);
   return Promise.all(
     picked.map(async (c) => ({
       ...c,
@@ -163,20 +175,17 @@ async function fallbackSelection(candidates, excludeIds = new Set(), count = con
 
 /**
  * Fetch news, pick the top stories per category and summarize them in Korean.
- * Returns { method: 'claude' | 'translate', categories: [{ id, label, emoji, stories }] }.
+ * Returns { provider: 'Claude' | 'GitHub Models' | null, categories: [{ id, label, emoji, stories }] }.
  */
 async function fetchNews() {
   console.log('[NEWS] Fetching US news by category...');
   const candidates = await collectCandidates();
 
-  let selections = null;
-  if (config.claude.apiKey) {
-    selections = await summarizeWithClaude(candidates);
-  } else {
-    console.log('[NEWS] ANTHROPIC_API_KEY not set - using newest stories + machine translation.');
-  }
+  const ai = await summarizeNews(candidates);
+  const selections = ai ? ai.selections : null;
 
   const categories = [];
+  const shown = []; // every story picked so far, to avoid repeating an event across categories
   for (const cat of config.newsCategories) {
     const pool = candidates[cat.id] || [];
     let stories = [];
@@ -185,28 +194,28 @@ async function fetchNews() {
       const byId = new Map(pool.map((c) => [c.id, c]));
       for (const sel of selections[cat.id]) {
         const c = byId.get(sel.id);
-        if (c && stories.length < config.news.perCategory && !stories.some((s) => s.id === c.id)) {
-          stories.push({ ...c, titleKo: sel.title_ko, summaryKo: sel.summary_ko });
+        if (c && stories.length < config.news.perCategory && !sameEventAsAny(c, shown)) {
+          const story = { ...c, titleKo: sel.title_ko, summaryKo: sel.summary_ko };
+          stories.push(story);
+          shown.push(story);
         }
       }
     }
 
-    // Top up from the fallback if Claude was unavailable or returned too few.
+    // Top up with rule-based picks if no AI ran or it returned too few.
     if (stories.length < config.news.perCategory) {
-      const extra = await fallbackSelection(
-        pool,
-        new Set(stories.map((s) => s.id)),
-        config.news.perCategory - stories.length
-      );
+      const extra = await fallbackSelection(pool, shown, config.news.perCategory - stories.length);
       stories = stories.concat(extra);
+      shown.push(...extra);
     }
 
     categories.push({ id: cat.id, label: cat.label, emoji: cat.emoji, stories });
   }
 
   const total = categories.reduce((n, c) => n + c.stories.length, 0);
-  console.log(`[NEWS] Prepared ${total} stories (${selections ? 'Claude summaries' : 'machine translation'}).`);
-  return { method: selections ? 'claude' : 'translate', categories };
+  const provider = ai ? ai.provider : null;
+  console.log(`[NEWS] Prepared ${total} stories (${provider ? `AI summaries: ${provider}` : 'rule-based + machine translation'}).`);
+  return { provider, categories };
 }
 
 module.exports = { fetchNews };

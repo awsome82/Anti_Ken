@@ -12,6 +12,11 @@ on:
         type: boolean
         default: false
 
+# models:read lets the built-in GITHUB_TOKEN call GitHub Models (free tier)
+permissions:
+  contents: read
+  models: read
+
 jobs:
   briefing:
     runs-on: ubuntu-latest
@@ -37,6 +42,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
           INDICES: '^GSPC,^IXIC,^DJI'
