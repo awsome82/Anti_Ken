@@ -179,7 +179,15 @@ async function githubModelsCategory(model, categoryId, list) {
   );
 
   const content = res.data?.choices?.[0]?.message?.content || '';
-  const parsed = JSON.parse(content.replace(/^```(?:json)?\s*|\s*```$/g, ''));
+  let parsed;
+  try {
+    parsed = JSON.parse(content.replace(/^```(?:json)?\s*|\s*```$/g, ''));
+  } catch (err) {
+    const raw = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
+    throw new Error(
+      `unparseable response (HTTP ${res.status}, ${res.headers?.['content-type'] || 'no content-type'}): ${(raw || '').slice(0, 400)}`
+    );
+  }
   const stories = Array.isArray(parsed.stories) ? parsed.stories : [];
   return stories.filter((s) => s && typeof s.id === 'string' && s.title_ko && s.summary_ko);
 }
