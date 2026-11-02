@@ -144,17 +144,28 @@ async function summarizeWithClaude(candidates) {
 
 // ── GitHub Models ──────────────────────────────────────────────────────────────
 
-const GITHUB_MODELS_URL = process.env.GITHUB_MODELS_URL || 'https://models.github.ai/inference/chat/completions';
+// Tried in order; an endpoint that doesn't return a chat completion is skipped.
+const GITHUB_MODELS_URLS = (
+  process.env.GITHUB_MODELS_URL ||
+  'https://models.github.ai/inference/chat/completions,https://models.inference.ai.azure.com/chat/completions'
+)
+  .split(',')
+  .map((u) => u.trim())
+  .filter(Boolean);
+
+class EndpointError extends Error {}
 
 /**
  * The free tier caps input at ~8K tokens per request, so we make one small
  * request per category with a trimmed candidate list.
  */
-async function githubModelsCategory(model, categoryId, list) {
+async function githubModelsCategory(url, model, categoryId, list) {
+  // The older Azure-hosted endpoint names models without the publisher prefix.
+  const modelId = url.includes('models.inference.ai.azure.com') ? model.replace(/^[^/]+\//, '') : model;
   const res = await axios.post(
-    GITHUB_MODELS_URL,
+    url,
     {
-      model,
+      model: modelId,
       messages: [
         { role: 'system', content: systemPrompt(config.news.perCategory) },
         {
@@ -178,7 +189,13 @@ async function githubModelsCategory(model, categoryId, list) {
     }
   );
 
-  const content = res.data?.choices?.[0]?.message?.content || '';
+  if (!res.data || typeof res.data !== 'object' || !Array.isArray(res.data.choices)) {
+    const raw = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
+    throw new EndpointError(
+      `not a chat completion (HTTP ${res.status}, ${res.headers?.['content-type'] || 'no content-type'}): ${(raw || '').slice(0, 200)}`
+    );
+  }
+  const content = res.data.choices[0]?.message?.content || '';
   let parsed;
   try {
     parsed = JSON.parse(content.replace(/^```(?:json)?\s*|\s*```$/g, ''));
@@ -193,6 +210,7 @@ async function githubModelsCategory(model, categoryId, list) {
 }
 
 async function summarizeWithGitHubModels(candidates) {
+  let endpoints = [...GITHUB_MODELS_URLS];
   let models = [...config.githubModels.models];
   const result = {};
   let anySuccess = false;
@@ -201,21 +219,32 @@ async function summarizeWithGitHubModels(candidates) {
     const list = (candidates[cat.id] || []).slice(0, config.githubModels.maxCandidates);
     if (list.length === 0) continue;
 
-    for (const model of [...models]) {
-      try {
-        console.log(`[AI] GitHub Models (${model}): ${cat.id}, ${list.length} candidates...`);
-        result[cat.id] = await githubModelsCategory(model, cat.id, list);
-        anySuccess = true;
-        break;
-      } catch (err) {
-        const status = err.response?.status;
-        const detail = err.response?.data?.error?.message || err.response?.data?.message || err.message;
-        console.warn(`[AI WARNING] GitHub Models ${model} failed for ${cat.id}${status ? ` (${status})` : ''}:`, detail);
-        if (status === 401 || status === 403) return null; // token lacks models:read - don't retry
-        // Unknown/unsupported model: don't try it again for the next categories.
-        if (status === 400 || status === 404) models = models.filter((m) => m !== model);
+    attempts: for (const url of [...endpoints]) {
+      const host = new URL(url).host;
+      for (const model of [...models]) {
+        try {
+          console.log(`[AI] GitHub Models (${host}, ${model}): ${cat.id}, ${list.length} candidates...`);
+          result[cat.id] = await githubModelsCategory(url, model, cat.id, list);
+          anySuccess = true;
+          break attempts;
+        } catch (err) {
+          const status = err.response?.status;
+          const detail = err.response?.data?.error?.message || err.response?.data?.message || err.message;
+          console.warn(`[AI WARNING] ${host} ${model} failed for ${cat.id}${status ? ` (${status})` : ''}:`, detail);
+          if (err instanceof EndpointError || status === 404 && /not found/i.test(String(detail)) && !/model/i.test(String(detail))) {
+            endpoints = endpoints.filter((u) => u !== url); // endpoint unusable - skip it from now on
+            continue attempts;
+          }
+          if (status === 401 || status === 403) {
+            endpoints = endpoints.filter((u) => u !== url);
+            continue attempts;
+          }
+          // Unknown/unsupported model: don't try it again for the next categories.
+          if (status === 400 || status === 404) models = models.filter((m) => m !== model);
+        }
       }
     }
+    if (endpoints.length === 0) break;
   }
   return anySuccess ? result : null;
 }

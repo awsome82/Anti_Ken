@@ -20,6 +20,9 @@ const EXCLUDE_TITLE = [
   /\bbest .{0,40}\b(?:deals?|to buy|of 20\d\d)\b|\bdeals?\b.*\b(?:off|sale|discount)\b|\bon sale\b|\bcoupon\b/i,
   /\breview\s*:|\bhands-on\b/i,
   /\bhoroscope\b|\bcrossword\b|\bwordle\b/i,
+  /^i (?:tested|tried|used|spent|bought)\b/i, // first-person reviews
+  /\bshould you\b|\bwhen (?:to|you should|not to)\b|\bhere'?s (?:how|why|what)\b/i, // advice / explainers
+  /^this \$?\d/i, // "This $48 gadget ..." product pieces
 ];
 
 const EXCLUDE_LINK = [/\/podcasts?\//i, /\/opinion\//i, /\/video\//i, /\/live\//i, /\/newsletters?\//i, /\/deals?\//i];
