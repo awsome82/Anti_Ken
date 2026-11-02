@@ -29,7 +29,7 @@ function getFormattedDateKorean() {
 /**
  * Build a complete Korean Telegram HTML morning briefing message.
  */
-function buildBriefing(marketData, newsItems) {
+function buildBriefing(marketData, news) {
   const dateStr = getFormattedDateKorean();
 
   let msg = `🌅 <b>미국 증시 & 주요 뉴스 모닝 브리핑</b>\n`;
@@ -48,7 +48,7 @@ function buildBriefing(marketData, newsItems) {
   }
   msg += `\n`;
 
-  // 2. Key Stock Equities Section (한국어 + NTAP 포함)
+  // 2. Key Stock Equities Section
   msg += `💼 <b>주요 종목 현황</b>\n`;
   if (marketData.equities && marketData.equities.length > 0) {
     const stockLines = marketData.equities
@@ -69,24 +69,27 @@ function buildBriefing(marketData, newsItems) {
   }
   msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-  // 3. Top 3 Overnight Major News (한국어 라벨)
-  const top3News = (newsItems || []).slice(0, 3);
-  msg += `📰 <b>밤사이 핵심 미국 뉴스 (Top 3)</b>\n`;
+  // 3. Category News (일반 / 경제 / IT)
+  msg += `📰 <b>미국 분야별 핵심 뉴스</b>\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
 
-  if (top3News.length === 0) {
-    msg += `<i>수집된 주요 뉴스 업데이트가 없습니다.</i>\n`;
+  const categories = news?.categories || [];
+  const hasStories = categories.some((c) => c.stories.length > 0);
+  if (!hasStories) {
+    msg += `<i>수집된 주요 뉴스 업데이트가 없습니다.</i>\n\n`;
   } else {
-    top3News.forEach((item, index) => {
-      const cleanT = escapeHtml(item.titleKo || item.title);
-      const cleanS = escapeHtml(item.source);
-      msg += `${index + 1}. <a href="${item.link}"><b>${cleanT}</b></a>\n`;
-      if (item.snippetKo) {
-        const cleanSnip = escapeHtml(item.snippetKo);
-        msg += `   📝 <i>요약: ${cleanSnip}</i>\n`;
-      }
-      msg += `   ↳ <i>출처: ${cleanS}</i>\n\n`;
-    });
+    for (const cat of categories) {
+      if (cat.stories.length === 0) continue;
+      msg += `\n${cat.emoji} <b>${escapeHtml(cat.label)}</b>\n`;
+      cat.stories.forEach((item, index) => {
+        msg += `${index + 1}. <b>${escapeHtml(item.titleKo || item.title)}</b>\n`;
+        if (item.summaryKo) {
+          msg += `${escapeHtml(item.summaryKo)}\n`;
+        }
+        msg += `↳ 출처: <a href="${escapeHtml(item.link)}">${escapeHtml(item.source)}</a>\n`;
+      });
+    }
+    msg += `\n`;
   }
 
   // 4. Korean Market Takeaway Digest
@@ -106,7 +109,8 @@ function buildBriefing(marketData, newsItems) {
     msg += `오늘 개장 전 최신 경제 지표와 시장 동향을 주시하세요.`;
   }
 
-  msg += `\n\n🤖 <i>자동 모닝 브리핑 봇</i>`;
+  const summaryNote = news?.provider ? ` · 뉴스 선별·요약: ${news.provider}` : ' · 뉴스: 자동 선별·번역';
+  msg += `\n\n🤖 <i>자동 모닝 브리핑 봇${summaryNote}</i>`;
 
   return msg;
 }

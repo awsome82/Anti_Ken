@@ -21,6 +21,12 @@ async function sendTelegramMessage(messageHtml) {
 
   const isConfigured = token && chatId && token !== 'your_bot_token' && chatId !== 'your_chat_id';
 
+  if (config.dryRun) {
+    console.log('\n[DRY RUN] Telegram delivery skipped. Briefing preview:\n');
+    console.log(stripHtml(messageHtml));
+    return { success: true, mode: 'dry-run' };
+  }
+
   if (!isConfigured) {
     console.log('\n===============================================================');
     console.log('📌 [NOTICE] TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set in .env.');

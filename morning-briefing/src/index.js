@@ -12,19 +12,22 @@ async function main() {
     // Step 1: Fetch stock market quotes & indices concurrently
     const marketDataPromise = fetchMarketData();
 
-    // Step 2: Fetch major US news headlines concurrently
-    const newsPromise = fetchNews(5, 8);
+    // Step 2: Fetch US news by category (general / economy / IT), select & summarize
+    const newsPromise = fetchNews();
 
-    const [marketData, newsItems] = await Promise.all([marketDataPromise, newsPromise]);
+    const [marketData, news] = await Promise.all([marketDataPromise, newsPromise]);
 
     // Step 3: Render briefing message
-    const briefingHtml = buildBriefing(marketData, newsItems);
+    const briefingHtml = buildBriefing(marketData, news);
 
     // Step 4: Deliver briefing (Telegram API or Console Preview)
     await sendTelegramMessage(briefingHtml);
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`\n=== Completed Morning Briefing workflow in ${elapsed}s ===`);
+    // Keep-alive sockets from the HTTP clients otherwise hold the process
+    // open for minutes after the work is done (close to the job timeout).
+    process.exit(0);
   } catch (err) {
     console.error('[FATAL ERROR] Morning Briefing workflow failed:', err);
     process.exit(1);
