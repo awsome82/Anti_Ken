@@ -25,7 +25,15 @@ const EXCLUDE_TITLE = [
   /^this \$?\d/i, // "This $48 gadget ..." product pieces
 ];
 
-const EXCLUDE_LINK = [/\/podcasts?\//i, /\/opinion\//i, /\/video\//i, /\/live\//i, /\/newsletters?\//i, /\/deals?\//i];
+const EXCLUDE_LINK = [
+  /\/podcasts?\//i,
+  /\/opinion\//i,
+  /\/video\//i,
+  /\/live\//i,
+  /\/newsletters?\//i,
+  /\/deals?\//i,
+  /\/reviews?\/|-review(?:-|\/|$)/i,
+];
 
 const STOPWORDS = new Set(
   ('the a an and or of to in on for with at by from as is are was were be been it its this that these those ' +

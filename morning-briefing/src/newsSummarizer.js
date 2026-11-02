@@ -231,7 +231,8 @@ async function summarizeWithGitHubModels(candidates) {
           const status = err.response?.status;
           const detail = err.response?.data?.error?.message || err.response?.data?.message || err.message;
           console.warn(`[AI WARNING] ${host} ${model} failed for ${cat.id}${status ? ` (${status})` : ''}:`, detail);
-          if (err instanceof EndpointError || status === 404 && /not found/i.test(String(detail)) && !/model/i.test(String(detail))) {
+          const unreachable = ['ENOTFOUND', 'ECONNREFUSED', 'EAI_AGAIN'].includes(err.code);
+          if (err instanceof EndpointError || unreachable) {
             endpoints = endpoints.filter((u) => u !== url); // endpoint unusable - skip it from now on
             continue attempts;
           }
