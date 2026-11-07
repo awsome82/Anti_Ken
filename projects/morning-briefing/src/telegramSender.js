@@ -37,7 +37,7 @@ async function sendTelegramMessage(messageHtml) {
     console.log('💡 To receive this briefing on Telegram:');
     console.log('   1. Create a bot via Telegram @BotFather to get your token.');
     console.log('   2. Get your Chat ID via @userinfobot or channel handle.');
-    console.log('   3. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in morning-briefing/.env');
+    console.log('   3. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in projects/morning-briefing/.env');
     console.log('===============================================================\n');
     return { success: true, mode: 'preview' };
   }
