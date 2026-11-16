@@ -8,11 +8,11 @@
  *   MONTVERT_USER_ID, MONTVERT_PASSWORD
  */
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const fs = require('fs');
-const path = require('path');
 
 // ── Configuration ──────────────────────────────────────────────────────────────
 
@@ -20,8 +20,11 @@ const BASE_URL = 'https://www.montvertcc.com';
 const LOGIN_URL = `${BASE_URL}/public/member/loginChk`;
 const CALENDAR_URL = `${BASE_URL}/public/reservation/ajax/golfCalendar`;
 const TIMELIST_URL = `${BASE_URL}/public/reservation/ajax/golfTimeList`;
-const DATA_DIR = path.join(__dirname, '..', 'data', 'montvert');
-const INDEX_PATH = path.join(__dirname, '..', 'data', 'index.json');
+// Snapshots live on the repo's `data` branch. CI checks that branch out at
+// DATA_ROOT; locally it defaults to ./data next to this file.
+const DATA_ROOT = path.resolve(process.env.DATA_ROOT || path.join(__dirname, 'data'));
+const DATA_DIR = path.join(DATA_ROOT, 'montvert');
+const INDEX_PATH = path.join(DATA_ROOT, 'index.json');
 
 const USER_AGENT =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36';
@@ -308,21 +311,6 @@ function getDayOfWeek(dateStr) {
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 /**
- * Sync snapshot and index files to docs/data directory for dashboard access.
- */
-function syncToDocs(snapshotPath, today) {
-  try {
-    const docsDir = path.join(__dirname, '..', 'docs', 'data', 'montvert');
-    fs.mkdirSync(docsDir, { recursive: true });
-    fs.copyFileSync(snapshotPath, path.join(docsDir, `${today}.json`));
-    fs.copyFileSync(INDEX_PATH, path.join(__dirname, '..', 'docs', 'data', 'index.json'));
-    console.log('[SYNC] Copied snapshot & index to docs/data directory.');
-  } catch (err) {
-    console.error('[SYNC WARNING] Could not copy to docs/data:', err.message);
-  }
-}
-
-/**
  * Generate mock snapshot data when credentials are not provided.
  */
 async function generateMockData(now) {
@@ -385,7 +373,6 @@ async function generateMockData(now) {
 
   fs.writeFileSync(INDEX_PATH, JSON.stringify(index, null, 2), 'utf-8');
   console.log(`[SAVE] Index updated. Total snapshots: ${index.snapshots.length}`);
-  syncToDocs(snapshotPath, today);
 }
 
 async function main() {
@@ -405,8 +392,8 @@ async function main() {
     if (process.env.CI) {
       throw new Error('Missing MONTVERT_USER_ID / MONTVERT_PASSWORD in CI. Refusing to generate mock data.');
     }
-    console.log('\n[NOTICE] MONTVERT_USER_ID or MONTVERT_PASSWORD credentials are not set in scraper/.env.');
-    console.log('[NOTICE] To scrape live data from Montvert CC, uncomment and set your credentials in scraper/.env.');
+    console.log('\n[NOTICE] MONTVERT_USER_ID or MONTVERT_PASSWORD credentials are not set in projects/golf-fees/.env.');
+    console.log('[NOTICE] To scrape live data from Montvert CC, uncomment and set your credentials in projects/golf-fees/.env.');
     console.log('[NOTICE] Running scraper in DEMO/MOCK mode to generate current snapshot data...\n');
     await generateMockData(new Date());
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -524,7 +511,6 @@ async function main() {
 
   fs.writeFileSync(INDEX_PATH, JSON.stringify(index, null, 2), 'utf-8');
   console.log(`[SAVE] Index updated. Total snapshots: ${index.snapshots.length}`);
-  syncToDocs(snapshotPath, today);
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log(`\n=== Done in ${elapsed}s ===`);

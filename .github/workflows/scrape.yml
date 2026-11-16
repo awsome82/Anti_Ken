@@ -1,14 +1,24 @@
 name: Scrape Green Fees
 
+# Scrapes Montvert CC and commits the daily snapshot to the `data` branch,
+# keeping data commits out of main. The dashboard is then redeployed by
+# pages.yml (triggered when this workflow succeeds).
+
 on:
   schedule:
     # Daily at midnight UTC = 9 AM KST
     - cron: '0 0 * * *'
   workflow_dispatch:
-    # Allow manual trigger from GitHub UI
 
 permissions:
   contents: write
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+env:
+  DATA_ROOT: ${{ github.workspace }}/projects/golf-fees/data
 
 jobs:
   scrape:
@@ -19,33 +29,50 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check out the data branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git ls-remote --exit-code --heads origin data >/dev/null; then
+            git fetch origin data:data
+            git worktree add "$DATA_ROOT" data
+          else
+            # First run: create the data branch from the legacy data/ folder on main.
+            if [ ! -f data/index.json ]; then
+              echo "::error::No data branch and no legacy data/ folder to bootstrap from."
+              exit 1
+            fi
+            git worktree add --orphan -b data "$DATA_ROOT"
+            cp -r data/. "$DATA_ROOT"/
+            echo "Bootstrapped data branch from legacy data/ on main."
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: scraper/package-lock.json
+          cache-dependency-path: projects/golf-fees/package-lock.json
 
       - name: Install dependencies
-        working-directory: scraper
+        working-directory: projects/golf-fees
         run: npm install
 
       - name: Run scraper
-        working-directory: scraper
+        working-directory: projects/golf-fees
         env:
           MONTVERT_USER_ID: ${{ secrets.MONTVERT_USER_ID }}
           MONTVERT_PASSWORD: ${{ secrets.MONTVERT_PASSWORD }}
           NODE_TLS_REJECT_UNAUTHORIZED: '0'
         run: npm run scrape
 
-      - name: Copy latest data to docs for GitHub Pages
+      - name: Commit snapshot to the data branch
+        working-directory: ${{ env.DATA_ROOT }}
         run: |
-          mkdir -p docs/data/montvert
-          cp data/index.json docs/data/index.json
-          cp data/montvert/*.json docs/data/montvert/
-
-      - name: Commit and push data
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "data: daily green fee snapshot [skip ci]"
-          file_pattern: "data/** docs/data/**"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No data changes."
+          else
+            git commit -q -m "data: green fee snapshot $(date -u +%F)"
+          fi
+          git push origin data
